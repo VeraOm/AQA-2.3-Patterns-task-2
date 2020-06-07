@@ -62,7 +62,7 @@ public class UserRegistrationTest {
     @Test
     void wrongLoginTest() {
         open("http://localhost:9999");
-        $("[data-test-id=login] input").setValue(activeUser.getLogin() + "@");
+        $("[data-test-id=login] input").setValue(activeUser.getLogin());
         $("[data-test-id=password] input").setValue(activeUser.getPassword());
         $("button[data-test-id=action-login]").click();
         $("[data-test-id=error-notification]").shouldHave(text("Ошибка!"))
