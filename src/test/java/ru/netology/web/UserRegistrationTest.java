@@ -40,13 +40,13 @@ public class UserRegistrationTest {
                 .then()
                 .statusCode(200);
         blockedUser = UserRegistrtionDataGenerator.generateData("blocked");
-        given()
+/*        given()
                 .spec(requestSpec)
                 .body(gson.toJson(blockedUser))
                 .when()
                 .post("/api/system/users")
                 .then()
-                .statusCode(200);
+                .statusCode(200);*/
     }
 
     @Test
