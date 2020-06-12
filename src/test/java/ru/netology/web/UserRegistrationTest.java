@@ -17,43 +17,12 @@ import static io.restassured.RestAssured.given;
 
 public class UserRegistrationTest {
 
-    private static UserRegistrationData activeUser;
-    private static UserRegistrationData blockedUser;
-
-    private static Gson gson = new Gson();
-    private static RequestSpecification requestSpec = new RequestSpecBuilder()
-            .setBaseUri("http://localhost")
-            .setPort(9999)
-            .setAccept(ContentType.JSON)
-            .setContentType(ContentType.JSON)
-            .log(LogDetail.ALL)
-            .build();
-
-    @BeforeAll
-    static void registrationUsers() {
-        activeUser = UserRegistrtionDataGenerator.generateData("active");
-        given()
-                .spec(requestSpec)
-                .body(gson.toJson(activeUser))
-                .when()
-                .post("/api/system/users")
-                .then()
-                .statusCode(200);
-        blockedUser = UserRegistrtionDataGenerator.generateData("blocked");
-        given()
-                .spec(requestSpec)
-                .body(gson.toJson(blockedUser))
-                .when()
-                .post("/api/system/users")
-                .then()
-                .statusCode(200);
-    }
-
     @Test
     void rightSignInTest() {
+        UserRegistrationData user = UserRegistrtionDataGenerator.generateValidActive();
         open("http://localhost:9999");
-        $("[data-test-id=login] input").setValue(activeUser.getLogin());
-        $("[data-test-id=password] input").setValue(activeUser.getPassword());
+        $("[data-test-id=login] input").setValue(user.getLogin());
+        $("[data-test-id=password] input").setValue(user.getPassword());
         $("button[data-test-id=action-login]").click();
         $("h2.heading.heading_size_l.heading_theme_alfa-on-white").shouldHave(text("Личный кабинет"));
 
@@ -61,9 +30,10 @@ public class UserRegistrationTest {
 
     @Test
     void wrongLoginTest() {
+        UserRegistrationData user = UserRegistrtionDataGenerator.generateInvalidLogin();
         open("http://localhost:9999");
-        $("[data-test-id=login] input").setValue(activeUser.getLogin() + "@");
-        $("[data-test-id=password] input").setValue(activeUser.getPassword());
+        $("[data-test-id=login] input").setValue(user.getLogin());
+        $("[data-test-id=password] input").setValue(user.getPassword());
         $("button[data-test-id=action-login]").click();
         $("[data-test-id=error-notification]").shouldHave(text("Ошибка!"))
                 .shouldHave(text("Неверно указан логин или пароль"));
@@ -72,9 +42,10 @@ public class UserRegistrationTest {
 
     @Test
     void wrongPasswordTest() {
+        UserRegistrationData user = UserRegistrtionDataGenerator.generateInvalidPassword();
         open("http://localhost:9999");
-        $("[data-test-id=login] input").setValue(activeUser.getLogin());
-        $("[data-test-id=password] input").setValue(activeUser.getPassword() + "0");
+        $("[data-test-id=login] input").setValue(user.getLogin());
+        $("[data-test-id=password] input").setValue(user.getPassword());
         $("button[data-test-id=action-login]").click();
         $("[data-test-id=error-notification]").shouldHave(text("Ошибка!"))
                 .shouldHave(text("Неверно указан логин или пароль"));
@@ -83,17 +54,19 @@ public class UserRegistrationTest {
 
     @Test
     void noPasswordTest() {
+        UserRegistrationData user = UserRegistrtionDataGenerator.generateValidActive();
         open("http://localhost:9999");
-        $("[data-test-id=login] input").setValue(activeUser.getLogin());
+        $("[data-test-id=login] input").setValue(user.getLogin());
         $("button[data-test-id=action-login]").click();
         $("[data-test-id=password]").shouldHave(text("Поле обязательно для заполнения"));
     }
 
     @Test
     void blockedUserSignInTest() {
+        UserRegistrationData user = UserRegistrtionDataGenerator.generateValidBlocked();
         open("http://localhost:9999");
-        $("[data-test-id=login] input").setValue(blockedUser.getLogin());
-        $("[data-test-id=password] input").setValue(blockedUser.getPassword());
+        $("[data-test-id=login] input").setValue(user.getLogin());
+        $("[data-test-id=password] input").setValue(user.getPassword());
         $("button[data-test-id=action-login]").click();
         $("[data-test-id=error-notification]").shouldHave(text("Пользователь заблокирован"));
 
